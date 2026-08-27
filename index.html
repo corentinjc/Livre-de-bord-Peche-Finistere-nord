@@ -225,6 +225,36 @@ dl.regles dd .prec{display:block;font-size:14px;color:var(--encre-2);margin-top:
   margin-top:10px;padding:9px 11px;border:2px dashed var(--vermillon);
   background:#fdf3ef;font-size:14.5px;
 }
+
+/* ---------- conseils de pêche ----------
+   Registre différent des règles, donc traitement différent : filet simple
+   au lieu du double filet, libellés à l'encre plutôt qu'au vermillon, et un
+   fond papier qui détache le bloc. */
+.conseils{margin-top:12px;padding:10px 12px 8px;background:var(--papier-2);border-top:1px solid var(--encre)}
+.conseils > .t{
+  font-family:"Avenir Next Condensed","Avenir Next","Futura","Optima","Trebuchet MS",sans-serif;
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--encre-2);
+  display:block;margin-bottom:6px;
+}
+dl.pratique{margin:0}
+dl.pratique > div{display:grid;grid-template-columns:1fr;gap:0;padding:6px 0;border-bottom:1px solid var(--papier-3)}
+dl.pratique > div:last-of-type{border-bottom:0}
+dl.pratique dt{
+  font-family:"Avenir Next Condensed","Avenir Next","Futura","Optima","Trebuchet MS",sans-serif;
+  font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--encre-2);margin-bottom:2px;
+}
+dl.pratique dd{margin:0;font-size:15.5px;line-height:1.45}
+dl.pratique .truc dt{color:var(--algue)}
+dl.pratique .truc dd{font-style:italic}
+.conseils-clos{
+  margin:0 0 8px;padding:6px 9px;background:#fdf3ef;border-left:4px solid var(--vermillon);
+  font-size:13.5px;color:var(--vermillon-d);
+}
+.conseils-avert{
+  margin:8px 0 0;font-size:12.5px;color:var(--encre-2);
+  font-family:"Avenir Next Condensed","Avenir Next","Futura","Optima","Trebuchet MS",sans-serif;
+  letter-spacing:.04em;
+}
 .avert b{color:var(--vermillon-d)}
 
 /* ---------- sections transversales ---------- */
@@ -320,6 +350,8 @@ figure.planche figcaption b{color:var(--laiton);letter-spacing:.1em;text-transfo
   body{font-size:18px}
   header.pont h1{font-size:40px}
   dl.regles > div{grid-template-columns:210px 1fr;gap:12px;align-items:baseline}
+  dl.pratique > div{grid-template-columns:210px 1fr;gap:12px;align-items:baseline}
+  dl.pratique dt{margin-bottom:0}
   dl.regles dt{margin-bottom:0}
   main{padding:0 22px 60px}
   .outils{padding:16px 22px 6px}
@@ -1826,6 +1858,381 @@ var ESPECES = [
    +'<rect x="118" y="192" width="84" height="16" fill="'+A+'"/><text x="160" y="203.5" text-anchor="middle" font-size="10" fill="#fff8ef" font-family="'+UI+'" letter-spacing="1">750 G MINIMUM</text></g>')
 }
 ];
+
+/* ================= CONSEILS DE PÊCHE PAR ESPÈCE =================
+   Ce bloc est le SEUL du fichier qui ne soit pas de la réglementation.
+   C'est de la pratique : ce qui prend, à quelle profondeur, dans quelle
+   eau, avec quel fer au bout. Il est tenu séparé des fiches pour une
+   raison simple — une maille est opposable, un conseil ne l'est pas, et
+   les mélanger reviendrait à donner à l'un l'autorité de l'autre.
+
+   RÈGLE D'ÉCRITURE, tenue pour les 42 espèces :
+     – aucun chiffre réglementaire n'est répété ici. Pas de maille, pas de
+       quota, pas de date de fermeture. Ces valeurs vivent dans la fiche
+       au-dessus, et à un seul endroit : si l'arrêté change, rien de ce
+       bloc ne devient faux.
+     – les températures sont celles de l'EAU, pas de l'air, et cadrent
+       avec la réalité du nord Finistère : 9 à 10 °C en fin d'hiver,
+       16 à 18 °C en fin d'été. Une plage annoncée hors de cette fenêtre
+       signifie que l'espèce se pêche ailleurs, ou plus profond.
+     – les profondeurs sont des hauteurs d'eau sous le bateau, ou des
+       niveaux d'estran pour la pêche à pied.
+     – « moment » parle de marée et d'heure, les deux variables que le
+       reste de l'application sait déjà calculer.
+
+   Champs, tous facultatifs : hamecon, outil, profondeur, temperature,
+   moment, appat, montage, astuce.
+   ================================================================== */
+var CONSEILS_AVERT = "Conseils de pratique, pas de réglementation : rien ici n’autorise ce que la fiche interdit.";
+
+var CONSEILS = {
+
+/* ---------------------- POISSONS ---------------------- */
+bar:{
+ hamecon:"Simple fort de fer n° 1/0 à 4/0 sur leurre souple ; triple n° 4 à 6 sur leurre de surface ; large-gap n° 2/0 pour l’appât naturel. Écrasez l’ardillon pendant la période de no-kill.",
+ profondeur:"De 0 à 15 m. Chasses en surface l’été, sur les pointes et les cailloux découvrants ; en journée et l’hiver il colle aux cassures entre 8 et 20 m.",
+ temperature:"Actif de 11 à 18 °C. Sous 10 °C il descend et se met au ralenti ; au-dessus de 19 °C il ne chasse plus qu’à l’aube et à la tombée du jour.",
+ moment:"Les deux heures qui encadrent l’étale de basse mer, puis le début du montant sur les pointes. Coefficient 70 à 95 : le courant range le lançon dans les veines, le bar se poste dessous.",
+ appat:"Stickbait ou popper à l’aube ; shad de 10 à 12 cm sur tête plombée de 10 à 25 g ; lançon vivant ; crabe mou en juin-juillet ; ver de chalut au posé.",
+ montage:"Fluorocarbone 28 à 35/100 sur 1,5 m. Canne 2,10–2,70 m en 10–40 g du bateau, 3 m et plus du bord.",
+ astuce:"Cherchez la limite entre l’eau claire et l’eau brassée par le courant. Le bar chasse sur la bordure trouble, pas au milieu."
+},
+barmouch:{
+ hamecon:"Simple n° 1 à 2/0, un cran sous le fer à bar commun : la bouche est plus modeste.",
+ profondeur:"De 0 à 10 m, très côtier — ports, estuaires, plages à faible tirant d’eau.",
+ temperature:"Espèce plus méridionale que le bar commun : présente surtout au-dessus de 14 °C, donc de juin à octobre sur le nord Finistère.",
+ moment:"Le montant, dans les eaux réchauffées des estuaires et des bassins portuaires.",
+ appat:"Leurre souple de 7 à 10 cm, ver, crevette vivante.",
+ montage:"Fluorocarbone 22 à 26/100, ensemble léger 5–20 g.",
+ astuce:"Comptez les points noirs avant de décider du sort du poisson : la confusion avec un bar commun est la source la plus fréquente des infractions involontaires, les deux espèces n’ayant pas la même maille."
+},
+lieujaune:{
+ hamecon:"Simple fort de fer n° 3/0 à 5/0 sur shad ; assist hooks n° 1/0 sur jig.",
+ profondeur:"De 10 à 40 m sur roche, épave et tombant. Les gros sujets tiennent le fond, les petits montent en pleine eau.",
+ temperature:"De 9 à 15 °C. C’est un poisson d’eau fraîche : la pêche s’améliore nettement quand l’eau redescend sous 14 °C, à l’automne.",
+ moment:"La renverse et la première heure de courant. Hors renverse, sur les tombants exposés, le poisson décolle et se disperse.",
+ appat:"Shad de 12 à 15 cm sur tête plombée de 20 à 60 g selon le courant ; jig de 60 à 120 g ; lanière de maquereau.",
+ montage:"Tresse 15 à 20/100, fluorocarbone 40/100 : la roche coupe, et un lieu jaune part droit dedans.",
+ astuce:"Touchez le fond, remontez de trois tours, recommencez. Le lieu attaque en montant — un leurre qui descend passe inaperçu."
+},
+lieunoir:{
+ hamecon:"Assist hook n° 2/0 sur jig, simple n° 3/0 sur leurre souple.",
+ profondeur:"De 20 à 60 m, en pleine eau au-dessus des épaves et des tombants, rarement posé sur le fond.",
+ temperature:"De 8 à 13 °C, plus froid encore que le lieu jaune. La saison va de septembre à février.",
+ moment:"Courant établi plutôt qu’étale : le banc se tient dans la veine et y travaille.",
+ appat:"Jig de 80 à 150 g, shad de 15 cm, mitraillette montée en gros leurres.",
+ montage:"Tresse 16/100, bas de ligne 40 à 50/100.",
+ astuce:"Il chasse en banc serré : à la première touche, ne changez rien à l’animation, le reste du banc suit le leurre jusqu’au bateau."
+},
+cabillaud:{
+ hamecon:"Simple fort n° 4/0 à 6/0, large de gueule pour un appât volumineux.",
+ profondeur:"De 20 à 60 m sur fond mixte sable-roche et abords d’épave.",
+ temperature:"De 6 à 12 °C. En Manche ouest les captures sont hivernales, et devenues rares.",
+ moment:"Automne et hiver, marées moyennes, courant modéré. La pêche au posé prime sur la dérive rapide.",
+ appat:"Lanière de maquereau, calamar entier, gros ver ; jig de 100 à 150 g.",
+ montage:"Empile courte sur potence, plomb de 100 à 200 g selon la dérive.",
+ astuce:"Le stock de Manche ouest est en mauvais état. Une morue à la maille reste une morue prélevée sur une population qui ne se reconstitue pas : prélevez à proportion."
+},
+maquereau:{
+ hamecon:"Mitraillette de 5 à 7 hameçons n° 4 à 1/0, montés plumes ou peau de poisson.",
+ profondeur:"De 0 à 30 m, en pleine eau : le banc se cale sur la couche de plancton du jour, cherchez-le au sondeur avant de descendre.",
+ temperature:"De 13 à 18 °C. Il arrive à la côte quand l’eau franchit 13 °C, vers mai, et décroche en octobre.",
+ moment:"Toute la journée en été, mais les chasses de surface sont matinales et vespérales.",
+ appat:"Mitraillette à plumes, petit jig de 20 à 40 g, leurre de surface sur une chasse déclarée.",
+ montage:"Plomb de 40 à 80 g en bout de mitraillette, canne souple : un scion raide décroche le poisson à la volée.",
+ astuce:"Les oiseaux marquent le banc mieux que le sondeur. Et le maquereau se conserve mal : saigné et mis en glace tout de suite, ou pas pêché du tout."
+},
+doradegrise:{
+ hamecon:"Simple fin de fer n° 6 à 2, piqué court. La bouche est petite et le poisson mordille.",
+ profondeur:"De 10 à 35 m sur fond mixte, épave, roche et tombants sableux.",
+ temperature:"De 12 à 17 °C. Elle monte en avril-mai dès que l’eau passe 12 °C et tient jusqu’en octobre.",
+ moment:"L’étale et le début de courant. Elle refuse le courant fort et décroche du poste.",
+ appat:"Ver de chalut, couteau, crabe mou, lanière de calamar. Amorçage discret au broyat.",
+ montage:"Fluorocarbone 20 à 24/100, deux empiles courtes au-dessus d’un plomb de 60 à 100 g.",
+ astuce:"Elle vole l’appât. Ferrez à la deuxième tirée, jamais à la première tape."
+},
+doraderoyale:{
+ hamecon:"Simple fort n° 1 à 2/0 — les mâchoires broient les coquillages, un fer fin plie net.",
+ profondeur:"De 2 à 20 m, sur les plateaux sableux et les gisements de coquillages. Très côtière l’été, parfois dans un mètre d’eau.",
+ temperature:"De 15 à 20 °C : la plus thermophile des dorades du secteur. Juillet à octobre.",
+ moment:"Le montant sur les estrans et les baies sableuses, avec les deux heures autour de la pleine mer.",
+ appat:"Crabe vert mou, couteau, ver américain, moule décoquillée.",
+ montage:"Fluorocarbone 30 à 35/100 : méfiante, mais capable de casser du 25/100 sur un démarrage.",
+ astuce:"Repérez à marée basse les gisements de coquillages brisés sur l’estran. C’est le garde-manger : revenez-y au montant."
+},
+doraderose:{
+ hamecon:"Simple fin n° 2 à 1/0, sur empile longue.",
+ profondeur:"De 40 à 150 m, sur les têtes de roche du large. Ce n’est pas un poisson de côte.",
+ temperature:"De 10 à 14 °C, en eau profonde donc peu sensible à la saison.",
+ moment:"Marées moyennes et courant faible : au-delà, la dérive rend la pêche impraticable à cette profondeur.",
+ appat:"Lanière de calamar, sardine, gros ver.",
+ montage:"Train de deux ou trois empiles, plomb de 200 à 500 g selon la dérive.",
+ astuce:"Remontez lentement. La vessie natatoire n’encaisse pas la décompression : un poisson monté d’une traite ne survit pas au relâcher, même indemne en apparence."
+},
+vieille:{
+ hamecon:"Simple fort n° 1/0 à 3/0, monté texan pour traverser la roche sans accrocher.",
+ profondeur:"De 2 à 25 m, dans les failles, les champs de laminaires et les tombants rocheux.",
+ temperature:"De 11 à 17 °C, d’avril à octobre. Sous 10 °C elle se met au ralenti et cesse de poursuivre.",
+ moment:"Toute la marée, avec un pic net sur le montant quand l’eau recouvre les laminaires.",
+ appat:"Crabe vert entier, leurre souple type craw de 10 cm, ver.",
+ montage:"Tresse 20/100, fluorocarbone 40/100 court, plombée texan de 10 à 30 g.",
+ astuce:"Sédentaire et à croissance lente : une vieille prélevée sur un spot n’y est pas remplacée avant des années. Le relâcher est ici la règle raisonnable, pas une coquetterie."
+},
+plie:{
+ hamecon:"Simple à hampe longue n° 4 à 1 : la bouche est petite et décalée sur le côté.",
+ profondeur:"De 5 à 30 m sur sable et sable-vase. Accessible du bord sur les grandes plages à pente douce.",
+ temperature:"De 8 à 14 °C. Elle fuit l’eau chaude : la saison va de l’automne au printemps.",
+ moment:"Le montant sur les plages, à la tombée du jour. Elle suit la marée pour fouiller l’estran qui vient d’être recouvert.",
+ appat:"Ver de chalut, arénicole, couteau, bibi.",
+ montage:"Empiles courtes agrémentées de perles colorées et d’une cuillère : la plie vient à la brillance.",
+ astuce:"Traînez le plomb lentement sur le fond plutôt que de le laisser mort. Le nuage de sable soulevé la fait venir de plusieurs mètres."
+},
+sole:{
+ hamecon:"Simple à hampe longue n° 6 à 2, fin de fer. La bouche est minuscule et tournée vers le bas.",
+ profondeur:"De 2 à 20 m sur sable fin. Du bord, elle chasse la nuit dans très peu d’eau, parfois moins d’un mètre.",
+ temperature:"De 10 à 16 °C, avec un pic au printemps et à l’automne.",
+ moment:"La nuit, presque exclusivement, sur les deux premières heures du montant. La sole travaille dans le ressac.",
+ appat:"Ver de chalut, arénicole, couteau. L’appât doit être frais et enfilé sur toute la hampe.",
+ montage:"Deux empiles courtes en 20 à 25/100 traînant sur le fond, plomb plat de 80 à 120 g pour tenir dans le ressac.",
+ astuce:"Ne ferrez pas. La sole aspire l’appât et repart : laissez la canne se plier toute seule, puis relevez doucement."
+},
+turbot:{
+ hamecon:"Simple fort n° 2/0 à 4/0, sur un vif ou une large lanière.",
+ profondeur:"De 10 à 50 m, sur les bancs de sable et les zones de courant à lançons.",
+ temperature:"De 10 à 16 °C, de mai à octobre.",
+ moment:"Courant établi sur le banc de sable : le turbot embusqué attend que le courant lui amène le lançon. À l’étale, il ne se passe rien.",
+ appat:"Lançon vif ou mort, lanière de maquereau, leurre souple blanc sur tête plombée.",
+ montage:"Coulissant sur le fond, empile longue de 1 à 1,5 m, plomb ajusté à la dérive.",
+ astuce:"Dérivez sur le banc dans le sens du courant, plomb au contact. La touche est une résistance sourde qui s’installe, pas une tape."
+},
+barbue:{
+ hamecon:"Simple fort n° 2/0 à 3/0.",
+ profondeur:"De 10 à 40 m, sur les mêmes fonds sableux que le turbot mais souvent un cran plus profond.",
+ temperature:"De 10 à 16 °C, de mai à octobre.",
+ moment:"Dérive sur courant modéré, comme pour le turbot.",
+ appat:"Lançon, lanière de maquereau, calamar.",
+ montage:"Identique au turbot : coulissant, empile longue, plomb adapté à la dérive.",
+ astuce:"Peau écailleuse et bouche plus large que le turbot : les deux espèces se ressemblent, se pêchent ensemble et n’ont pas la même fiche. Identifiez avant de garder."
+},
+mulet:{
+ hamecon:"Simple fin n° 10 à 6. Un fer à bar est deux fois trop gros pour ces lèvres.",
+ profondeur:"De 0 à 3 m, en surface dans les ports, les estuaires et les sorties d’eau douce.",
+ temperature:"De 12 à 20 °C, de mai à octobre. Il tolère l’eau saumâtre et chaude mieux qu’aucun autre poisson du secteur.",
+ moment:"La pleine mer dans les bassins portuaires, le montant aux embouchures.",
+ appat:"Pain, pâte, ver fin, morceau de crevette. Amorçage régulier au pain ou aux granulés.",
+ montage:"Flotteur fin, nylon 16 à 18/100, plombée très légère. C’est de la pêche au coup transposée en mer.",
+ astuce:"Amorcez vingt minutes avant de lancer, puis ne changez plus rien. Le banc met du temps à se mettre en confiance et une seule maladresse le disperse pour la journée."
+},
+congre:{
+ hamecon:"Simple fort de fer n° 6/0 à 8/0, sur bas de ligne acier ou fluorocarbone 80 à 100/100.",
+ profondeur:"De 10 à 60 m, dans les épaves, les enrochements et les pieds de digue.",
+ temperature:"De 11 à 17 °C. Il sort surtout quand l’eau est au plus chaud, de juin à novembre.",
+ moment:"La nuit, et pendant l’étale : le congre quitte son trou quand le courant faiblit.",
+ appat:"Poisson mort entier — maquereau, tacaud, seiche.",
+ montage:"Matériel lourd et frein serré dès le départ. Un congre qui reprend son trou n’en ressort pas.",
+ astuce:"Dégorgeoir long et pince obligatoires. La mâchoire est dangereuse, et un congre à relâcher doit l’être sans jamais passer par vos doigts."
+},
+raies:{
+ hamecon:"Simple fort n° 4/0 à 6/0 sur bas de ligne renforcé.",
+ profondeur:"De 5 à 50 m sur sable et sable-vase, souvent en bordure des zones de courant.",
+ temperature:"De 9 à 15 °C, avec un pic au printemps et à l’automne.",
+ moment:"Courant modéré, pêche au posé, souvent de nuit.",
+ appat:"Lanière de maquereau, seiche, tacaud, gros ver.",
+ montage:"Plomb grappin pour tenir le fond, empile courte, bas de ligne résistant à l’abrasion.",
+ astuce:"Identifiez l’espèce AVANT de décider : plusieurs raies se ressemblent et leur statut diffère de l’une à l’autre. Une raie se relâche à plat, jamais soulevée par les ailerons — ça lui déchire les cartilages."
+},
+thonrouge:{
+ hamecon:"Circle hook n° 7/0 à 10/0 de préférence : il se pique en gueule et rend le relâcher survivable.",
+ profondeur:"De 0 à 50 m, en pleine eau sous les chasses ou sur un écho franc au sondeur.",
+ temperature:"De 16 à 22 °C : il remonte en Manche ouest à la fin de l’été, quand l’eau est à son maximum.",
+ moment:"De juillet à octobre, sur les chasses matinales. L’oiseau reste le meilleur détecteur.",
+ appat:"Popper ou stickbait de gros volume, jig lourd, traîne rapide.",
+ montage:"Très lourd : tresse 40 à 50/100, fluorocarbone 100 à 130/100, moulinet à forte contenance et frein réglé au banc d’essai, pas au doigt.",
+ astuce:"Sur-dimensionnez le matériel plutôt que l’inverse : un combat qui s’éternise tue le poisson même relâché. Et le régime d’autorisation se vérifie AVANT d’appareiller, pas au retour."
+},
+
+/* --------------------- CRUSTACÉS ---------------------- */
+homard:{
+ outil:"Casier depuis le bateau, ou crochet à main dans les failles de l’estran. Le nombre d’engins embarqués est plafonné : voyez le mémo de bord.",
+ profondeur:"Failles de l’estran rocheux découvertes en grande marée ; jusqu’à 40 m au casier, sur roche et gros galets.",
+ temperature:"De 12 à 17 °C : le plus actif de mai à octobre. Sous 10 °C il se déplace peu et le casier ne prend plus.",
+ moment:"Coefficient 95 et plus pour l’estran, à l’étale de basse mer. Au casier, relevez à l’étale pour ne pas travailler contre le courant.",
+ appat:"Poisson gras dans le boëttier — maquereau, sardine, têtes de lieu.",
+ astuce:"Une femelle grainée retourne à l’eau, sans discussion. Et le crochet abîme la carapace : préférez la main gantée partout où la faille le permet."
+},
+langouste:{
+ outil:"Casier ou filet ; à la main en plongée là où c’est autorisé. Elle ne se prend pas à la ligne.",
+ profondeur:"De 10 à 60 m sur roche à surplombs. Rarement accessible à pied sur le nord Finistère.",
+ temperature:"De 12 à 17 °C, activité maximale de juin à octobre.",
+ moment:"La nuit. Le jour elle reste calée sous le surplomb et ne se déplace pas.",
+ appat:"Poisson gras, comme pour le homard.",
+ astuce:"Le stock local est très diminué : une langouste prélevée est un vrai prélèvement, pas un aléa. Femelles grainées à l’eau, systématiquement."
+},
+tourteau:{
+ outil:"Casier depuis le bateau ; crochet à main dans les failles de l’estran.",
+ profondeur:"Failles basses de l’estran rocheux, et de 10 à 50 m au casier.",
+ temperature:"De 11 à 17 °C. Il reste actif plus tard en saison froide que le homard.",
+ moment:"Coefficient 100 et plus pour atteindre les failles basses, sur les 45 minutes qui encadrent la basse mer.",
+ appat:"Poisson gras entier, carcasses, arêtes.",
+ astuce:"Un tourteau mou vient de muer : chair spongieuse, animal fragile, aucun intérêt. Reposez-le exactement où vous l’avez pris."
+},
+araignee:{
+ outil:"Casier, filet, ou à la main dans les herbiers et les failles peu profondes.",
+ profondeur:"De 0 à 30 m. Très accessible au printemps, quand elle monte sur les fonds côtiers pour la mue et l’accouplement.",
+ temperature:"De 11 à 16 °C. Le rassemblement d’avril à juin est le moment de sa plus forte présence à la côte.",
+ moment:"Grandes marées de printemps, en fin de jusant.",
+ appat:"Poisson gras au casier, mais elle vient aussi seule sur les zones de rassemblement.",
+ astuce:"Les amas d’araignées empilées au printemps sont des groupes de mue : les individus les plus vulnérables du cycle, et une araignée molle ne vaut rien à table. Laissez l’amas tranquille."
+},
+etrille:{
+ outil:"À la main ou au crochet sous les pierres de l’estran ; balance appâtée dans les ports.",
+ profondeur:"Estran rocheux et herbiers, jusqu’à 15 m.",
+ temperature:"De 10 à 17 °C, toute l’année avec un creux en plein hiver.",
+ moment:"Basse mer de vive-eau, coefficient 85 et plus.",
+ appat:"Poisson gras dans la balance ; rien pour la pêche sous les pierres.",
+ astuce:"Retournez la pierre, prenez le crabe, REMETTEZ la pierre dans sa position d’origine. Une pierre laissée à l’envers stérilise son dessous pour des années — c’est le premier dégât de la pêche à pied, très loin devant le prélèvement."
+},
+bouquet:{
+ outil:"Haveneau poussé sous les surplombs et dans les champs de laminaires.",
+ profondeur:"Estran, dans 20 cm à 1 m d’eau, sous les roches en surplomb.",
+ temperature:"De 9 à 15 °C. La saison va de septembre à mars : le bouquet fuit l’eau chaude de l’été.",
+ moment:"Basse mer des grandes marées d’automne et d’hiver, coefficient 95 et plus, de préférence en fin de jusant.",
+ appat:"Aucun — c’est une pêche de fouille.",
+ astuce:"Poussez le filet sous le surplomb en revenant vers vous, maille plaquée à la roche. Le bouquet fuit vers l’ombre, jamais vers le large."
+},
+crevettegrise:{
+ outil:"Pousseux à main sur le sable, dans peu d’eau.",
+ profondeur:"Estran sableux, dans 10 à 50 cm d’eau.",
+ temperature:"De 10 à 18 °C. Meilleure période : l’été et le début de l’automne.",
+ moment:"Fin de jusant et début de montant, sur les plages à pente douce.",
+ appat:"Aucun — c’est une pêche de fouille, comme le bouquet.",
+ astuce:"Elle s’enfouit. C’est le raclage du sable sur 2 à 3 cm par le bas du filet qui la déloge : un pousseux qui ne touche pas le fond revient vide."
+},
+langoustine:{
+ outil:"Casier depuis le bateau, sur fond de vase. Pêche embarquée uniquement.",
+ profondeur:"De 50 à 200 m, sur les vases molles où elle creuse ses terriers.",
+ temperature:"De 8 à 13 °C — fonds profonds, donc température stable toute l’année.",
+ moment:"Elle sort du terrier à la tombée du jour et à l’aube : relevez au petit matin.",
+ appat:"Poisson gras : maquereau, sardine, restes de filetage.",
+ astuce:"Extrêmement fragile hors de l’eau. Glacière et eau de mer glacée dès la remontée, sinon la chair se dégrade en une heure de pont."
+},
+
+/* -------------------- COQUILLAGES ---------------------- */
+ormeau:{
+ outil:"Crochet plat à ormeau, glissé sous le pied sans forcer. Périodes et conditions strictement encadrées : lisez la fiche avant de descendre.",
+ profondeur:"Bas de l’estran rocheux, qui ne découvre qu’aux plus grandes marées.",
+ temperature:"De 10 à 16 °C, mais ici c’est l’arrêté qui fixe la saison, pas le thermomètre.",
+ moment:"Coefficient 100 et plus, sur les 45 minutes qui encadrent la basse mer.",
+ astuce:"Un ormeau décollé puis jugé trop petit ne se recolle pas : il meurt. Mesurez AVANT de décoller, réglette posée sur la coquille en place."
+},
+csj:{
+ outil:"Drague depuis le bateau, ou à la main en plongée là où c’est autorisé. Quelques gisements très bas se ramassent à pied.",
+ profondeur:"De 10 à 40 m sur sable et gravier ; exceptionnellement sur le bas de l’estran.",
+ temperature:"De 8 à 14 °C. La saison réglementaire couvre l’hiver, quand la chair et le corail sont pleins.",
+ moment:"Le gisement se travaille à l’étale ou en courant faible : en pleine veine, la drague décolle et ne travaille plus.",
+ astuce:"Elle se tient enfouie à ras du sédiment, seule la charnière dépasse. Au sondeur, cherchez un fond dur et régulier plutôt qu’un relief."
+},
+petoncle:{
+ outil:"À la main ou au petit râteau, sur les fonds de gravier et de maërl découvrants.",
+ profondeur:"Bas de l’estran et petits fonds jusqu’à 15 m.",
+ temperature:"De 9 à 15 °C, présent toute l’année.",
+ moment:"Grandes marées, sur le bas de l’estran graveleux.",
+ astuce:"Le maërl est un habitat protégé qui met des siècles à se former et ne se reconstitue pas à l’échelle d’une vie. Ne le retournez pas : prenez ce qui est en surface."
+},
+praire:{
+ outil:"Râteau à dents courtes, sur sable grossier et gravier.",
+ profondeur:"Bas de l’estran, enfouie de 3 à 8 cm.",
+ temperature:"De 9 à 16 °C, toute l’année.",
+ moment:"Coefficient 90 et plus, sur la dernière heure du jusant.",
+ astuce:"Elle est peu profonde mais elle est dense : ratissez lentement sur 5 cm. Un passage rapide glisse au-dessus du gisement sans rien prendre."
+},
+palourde:{
+ outil:"Griffe ou petit râteau, sur les sablons vaseux des baies abritées.",
+ profondeur:"Enfouie de 5 à 15 cm dans le sédiment, sur l’estran découvrant.",
+ temperature:"De 10 à 18 °C, toute l’année. La chair est meilleure hors de la période de reproduction estivale.",
+ moment:"Coefficient 85 et plus, sur la dernière heure avant l’étale de basse mer.",
+ astuce:"Le trou en forme de 8 — les deux siphons — signe la palourde. Et rebouchez derrière vous : un sédiment retourné et laissé ouvert asphyxie tout ce qui restait dessous."
+},
+coque:{
+ outil:"Râteau à dents fines, ou les doigts sur les bancs riches.",
+ profondeur:"Très superficielle : 2 à 5 cm sous le sable.",
+ temperature:"De 8 à 18 °C, toute l’année.",
+ moment:"N’importe quelle basse mer sur les bancs sableux des baies. Un coefficient moyen suffit, inutile d’attendre la vive-eau.",
+ astuce:"Vérifiez le classement sanitaire de la zone avant de ramasser. La coque filtre en continu : une zone déclassée le reste même quand l’eau paraît claire."
+},
+amande:{
+ outil:"Râteau, sur gravier et sable grossier du bas de l’estran.",
+ profondeur:"Enfouie de 5 à 10 cm, sur le bas de l’estran seulement.",
+ temperature:"De 9 à 15 °C, toute l’année.",
+ moment:"Grandes marées, sur les zones graveleuses les plus basses.",
+ astuce:"Croissance très lente : un individu de taille adulte a souvent plus de dix ans. C’est une espèce qu’on ramasse par poignées, pas par seaux."
+},
+moule:{
+ outil:"À la main ou au couteau, sur les roches et les moulières de l’estran.",
+ profondeur:"Zone de balancement des marées, sur roche et enrochement.",
+ temperature:"De 8 à 18 °C toute l’année. La chair est pleine de l’automne au printemps, maigre après la reproduction estivale.",
+ moment:"N’importe quelle basse mer, sans attendre la vive-eau.",
+ astuce:"Prélevez par touffes en laissant le byssus des petites en place, et tenez-vous à distance des rejets urbains et des bassins portuaires : la moule concentre tout ce qui passe."
+},
+huitre:{
+ outil:"À la main avec un gant épais, couteau court pour décoller.",
+ profondeur:"Estran rocheux et vasières, dans la zone de balancement.",
+ temperature:"De 8 à 18 °C. La chair est la meilleure en eau froide, de septembre à avril.",
+ moment:"Toute basse mer : les gisements sauvages sont accessibles dès un coefficient moyen.",
+ astuce:"Ne confondez jamais un gisement naturel avec une concession : un parc est une propriété privée, et le ramassage y est un vol. Vérifiez aussi le classement sanitaire du secteur."
+},
+couteau:{
+ outil:"Sel fin versé dans le trou, ou tire-couteau. Le sel reste la méthode la plus sélective.",
+ profondeur:"Enfoui de 20 à 40 cm dans le sable fin du bas de l’estran.",
+ temperature:"De 9 à 17 °C, toute l’année.",
+ moment:"Coefficient 95 et plus : les bancs à couteaux ne découvrent qu’en vive-eau, sur la dernière demi-heure du jusant.",
+ astuce:"Le trou en forme de serrure marque l’animal. Versez le sel, attendez, et surtout ne tirez pas dès qu’il pointe : laissez-le monter entièrement, sinon il casse en deux et meurt pour rien."
+},
+telline:{
+ outil:"Râteau à main à dents fines, sur le sable battu des plages exposées.",
+ profondeur:"De 2 à 10 cm sous le sable, dans la zone de déferlement.",
+ temperature:"De 12 à 19 °C : la pêche est estivale.",
+ moment:"Basse mer, dans le ressac des plages de sable fin.",
+ astuce:"Elle vit dans le sable remué par les vagues. Cherchez là où l’eau blanchit, jamais sur le sable ressuyé du haut de plage."
+},
+bigorneau:{
+ outil:"À la main, sous les fucus et dans les creux humides de la roche.",
+ profondeur:"Haut et milieu d’estran, partout où la roche reste humide entre deux marées.",
+ temperature:"De 6 à 18 °C, toute l’année. La chair est meilleure en hiver.",
+ moment:"N’importe quelle marée descendante ; un coefficient moyen suffit largement.",
+ astuce:"Soulevez le fucus, prenez, rabattez-le. C’est sous cette couverture humide que tout survit jusqu’à la marée suivante — un pan d’algue laissé retourné cuit son dessous au premier soleil."
+},
+bulot:{
+ outil:"Casier appâté depuis le bateau ; à la main sur le bas de l’estran, beaucoup plus rarement.",
+ profondeur:"De 5 à 50 m sur sable et gravier. Il ne découvre qu’en très grande marée.",
+ temperature:"De 7 à 15 °C, toute l’année, meilleur en eau froide.",
+ moment:"Relevez après 24 à 48 h de pose : le bulot vient lentement, à l’odeur.",
+ appat:"Crabe cassé, poisson gras. Il suit la traînée odorante sur des dizaines de mètres.",
+ astuce:"Il se déplace peu. Un casier bien posé reprend marée après marée, un casier mal posé ne prendra jamais : notez vos positions au GPS, pas de mémoire."
+},
+poucepied:{
+ outil:"Ciseau à froid ou gouge, en détachant la touffe entière par la base.",
+ profondeur:"Zone de déferlement des caps exposés, sur la roche battue par la houle.",
+ temperature:"De 10 à 16 °C, mais ici c’est l’état de la mer qui commande, pas la température.",
+ moment:"Grande marée ET mer calme — les deux à la fois, sans houle résiduelle. Trente minutes autour de la basse mer, pas davantage.",
+ astuce:"C’est la pêche à pied la plus meurtrière du littoral. Jamais seul, jamais dos à la mer, jamais par houle longue même sous un ciel bleu : le pouce-pied pousse exactement là où les vagues frappent, c’est ce qui le nourrit."
+},
+oursin:{
+ outil:"À la main gantée, ou petite épuisette dans les cuvettes du bas de l’estran.",
+ profondeur:"Bas de l’estran et petits fonds, dans les cuvettes et sous les surplombs.",
+ temperature:"De 9 à 15 °C. La saison réglementaire couvre l’hiver, quand les gonades sont pleines.",
+ moment:"Grande marée, coefficient 100 et plus : il ne découvre que tout en bas.",
+ astuce:"Les populations du secteur sont fragiles et très localisées. Vider une cuvette, c’est la vider pour des années : prenez trois oursins, pas trente."
+},
+poulpe:{
+ outil:"Turlutte à poulpe depuis le bateau ; crochet ou main gantée dans les failles à marée basse.",
+ profondeur:"De 0 à 40 m, sur roche, enrochements, épaves et champs de coquilles vides.",
+ temperature:"De 13 à 19 °C. Les abondances récentes en Manche sont estivales et automnales, de juillet à novembre.",
+ moment:"Fin de jusant sur l’estran, dans les failles et sous les pierres plates. En bateau, dérive lente le long de la roche.",
+ appat:"Turlutte blanche ou rose, crabe monté, à défaut un simple chiffon blanc.",
+ astuce:"Cherchez les garde-manger : un amas de coquilles vides devant une faille signale un poulpe installé derrière, et il y sera encore à la marée suivante."
+}
+};
 </script>
 <script>
 /* ================= INTRODUCTIONS PAR MODE DE PÊCHE ================= */
@@ -2185,7 +2592,13 @@ function bandeMaille(e,mesureCourteTxt){
 
  function norm(s){ return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
  function txtRecherche(e){
-  return norm(e.nom+" "+e.sci+" "+(e.br||"")+" "+e.crit.join(" ")+" "+(e.taille||"")+" "+e.g);
+  /* Les conseils entrent dans l'index : « turlutte », « haveneau », « casier »
+     ou « nuit » deviennent des requêtes utiles, ce qu'ils n'étaient pas tant
+     que seule la réglementation était indexée. */
+  var c = (typeof CONSEILS!=="undefined" && CONSEILS[e.id])
+   ? CONSEILS_ORDRE.map(function(k){ return CONSEILS[e.id][k]||""; }).join(" ")
+   : "";
+  return norm(e.nom+" "+e.sci+" "+(e.br||"")+" "+e.crit.join(" ")+" "+(e.taille||"")+" "+e.g+" "+c);
  }
  function badge(e){
   if(e.id==="thonrouge") return ["115","cm ou 30 kg"];
@@ -2212,6 +2625,31 @@ function bandeMaille(e,mesureCourteTxt){
   return '<div class="figure">'+e.svg
    +'<span class="legende-lien">Schéma dessiné : cette espèce ne figure pas dans les planches IFREMER fournies. '
    +'<a href="'+e.photo+'" rel="noopener">Photo de référence sur '+W_COM+' ↗</a> — nécessite une connexion.</span></div>';
+ }
+
+ /* ---------- conseils de pêche ----------
+    Bloc PRATIQUE, tenu visuellement à part des règles : filet simple et fond
+    papier, là où la réglementation a le double filet. Un lecteur pressé doit
+    voir au premier coup d'œil qu'il change de registre. */
+ var CONSEILS_L = {
+  hamecon:"Hameçon", outil:"Outil", profondeur:"Profondeur",
+  temperature:"Température de l’eau", moment:"Moment", appat:"Appâts et leurres",
+  montage:"Montage", astuce:"Le petit truc"
+ };
+ var CONSEILS_ORDRE = ["hamecon","outil","profondeur","temperature","moment","appat","montage","astuce"];
+ function conseils(e){
+  var c = (typeof CONSEILS!=="undefined") ? CONSEILS[e.id] : null;
+  if(!c) return "";
+  var st = statutDuJour(e);
+  var lignes = CONSEILS_ORDRE.filter(function(k){ return c[k]; }).map(function(k){
+   return '<div'+(k==="astuce"?' class="truc"':'')+'><dt>'+CONSEILS_L[k]+'</dt><dd>'+c[k]+'</dd></div>';
+  }).join("");
+  return '<div class="conseils"><span class="t">Conseils de pêche</span>'
+   +(st==="ferme"
+      ? '<p class="conseils-clos">Espèce fermée aujourd’hui : ces conseils ne valent que pour la période où la pêche est ouverte.</p>'
+      : '')
+   +'<dl class="pratique">'+lignes+'</dl>'
+   +'<p class="conseils-avert">'+CONSEILS_AVERT+'</p></div>';
  }
 
  function fiche(e){
@@ -2243,6 +2681,7 @@ function bandeMaille(e,mesureCourteTxt){
        :'Non listée à l\'annexe de l\'arrêté du 17 mai 2011 modifié.')+'</dd></div>'
    +(e.autor?'<div><dt>Autorisation préalable</dt><dd>'+e.autor+'</dd></div>':'')
    +'</dl>'
+   + conseils(e)
    +'<div class="source"><span class="t">Textes de référence</span>'
    + e.refs.map(function(r){return r.t+" <i>("+r.d+")</i>.";}).join("<br>")
    +'</div></div></details>';
